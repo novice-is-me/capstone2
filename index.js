@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 // [SECTION] Importing Routes
-const userRoutes = require('./routes/user.js');
+// const userRoutes = require('./routes/user.js');
 
 // [SECTION] Environment Setup
 require('dotenv').config();
@@ -45,7 +45,7 @@ mongoose.connect(process.env.MONGODB_STRING);
 mongoose.connection.once('open', () => console.log("Now connected to MongoDB Atlas"));
 
 // [SECTION] Routes
-app.use("/users", userRoutes);
+// app.use("/users", userRoutes);
 
 // [SECTION] Server Gateway Response
 if(require.main === module) {
