@@ -120,7 +120,7 @@ module.exports.getProfile = (req, res) => {
 	// The "return" keyword ensures the end of the getProfile method
 	// Since getProfile is now used as a middleware it should have access to "req.user" if the "verify" method is used before it
 	// Order of middleware is crucial. This is because the "getProfile" method/function is the "next" function to the "verify" method, it receives the updated request with the user id from it
-	return User.findById(req.user.id)
+	return User.findById(req.user.id).select('-password')
 	.then(user => {
 
 		if(!user){
@@ -128,8 +128,7 @@ module.exports.getProfile = (req, res) => {
 			return res.status(404).send({ error: 'User not found' })
 		}else {
                 // if the user is found, return the user.
-			user.password = "";
-			return res.status(200).send(user);
+			return res.status(200).send({user: user});
 		}  
 	})
 	.catch(error => errorHandler(error, req, res));
