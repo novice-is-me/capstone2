@@ -1,6 +1,8 @@
 // [SECTION] Dependencies and Modules
 const bcrypt = require('bcrypt');
 const User = require("../models/User.js");
+const mongoose = require("mongoose");
+
 
 // Importing auth.js
 const auth = require("../auth.js");
@@ -151,6 +153,23 @@ module.exports.updateUserAsAdmin = (req, res) => {
 		if (!userId) {
 			return res.status(400).json({ message: "User ID is required" });
 		}
+
+		if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(500).json({
+                error: "Failed in Find",
+                details: {
+                    stringValue: `"${userId}"`,
+                    valueType: typeof userId,
+                    kind: "ObjectId",
+                    value: userId,
+                    path: "_id",
+                    reason: {},
+                    name: "CastError",
+                    message: `Cast to ObjectId failed for value "${userId}" (type ${typeof userId}) at path "_id" for model "User"`
+                }
+            });
+        }
+
 		User.findByIdAndUpdate(userId, { isAdmin: true }, { new: true })
 		.then(updatedUser => {
 			if (!updatedUser) {
