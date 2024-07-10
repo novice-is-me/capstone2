@@ -65,14 +65,14 @@ function isValidEmail(email) {
 }
 
 module.exports.getProfile = (req, res) => {
-	return User.findById(req.user.id)
+	return User.findById(req.user.id).select('-password')
 	.then(user => {
 		
 		if(!user){
 			return res.status(403).send({ message: 'invalid signature' })
 		}else {
-			user.password = "";
-			return res.status(200).send(user);
+                // if the user is found, return the user.
+			return res.status(200).send({user: user});
 		}  
 	})
 	.catch(error => errorHandler(error, req, res));
