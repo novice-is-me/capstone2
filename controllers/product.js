@@ -86,10 +86,14 @@ module.exports.getAllActive = (req, res) => {
     2. Use the "then" method to send a response back to the client appliction based on the result of the "find" method
 */
 module.exports.getProduct = (req, res) => {
-
-    Product.findById(req.params.id)
-    .then(course => res.send(course))
-    .catch(err => errorHandler(err, req, res));
+    Product.findById(req.params.productId) // Use req.params.productId instead of req.params.id
+        .then(product => {
+            if (!product) {
+                return res.status(404).json({ error: "Product not found" });
+            }
+            res.json({ product: product });
+        })
+        .catch(err => errorHandler(err, req, res));
 };
 
 //[SECTION] Update a course
@@ -106,21 +110,21 @@ module.exports.updateProduct = (req, res)=>{
         description: req.body.description,
         price: req.body.price
     }
-
-    // findByIdandUpdate() finds the the document in the db and updates it automatically
-    // req.body is used to retrieve data from the request body, commonly through form submission
-    // req.params is used to retrieve data from the request parameters or the url
-    // req.params.courseId - the id used as the reference to find the document in the db retrieved from the url
-    // updatedCourse - the updates to be made in the document
-    return Product.findByIdAndUpdate(req.params.courseId, updatedProduct)
-    .then(product => {
-        if (product) {
-            res.send(true);
-        } else {
-            res.send(false);
-        }
-    })
-    .catch(error => errorHandler(error, req, res));
+    Product.findByIdAndUpdate(req.params.productId, updatedProduct, { new: true }) 
+        .then(product => {
+            if (!product) {
+                return res.status(404).json({ error: "Product not found" });
+            }
+            Product.findById(product._id)
+                .then(updatedProduct => {
+                    res.json({
+                        message: "Product updated successfully",
+                        updatedProduct: updatedProduct
+                    });
+                })
+                .catch(err => errorHandler(err, req, res));
+        })
+        .catch(error => errorHandler(error, req, res));
 };
 
 //[SECTION] Archive a course
@@ -137,65 +141,44 @@ module.exports.archiveProduct = (req, res) => {
         isActive: false
     };
 
-    Product.findByIdAndUpdate(req.params.courseId, updateActiveField)
-    .then(product => {
-        if (product) {
-            if (!product.isActive) {
-                        //if the course isActive is already false, send a message 'Course already archived' and return the course.
-                return res.status(200).send({ 
-                    message: 'Product already archived',
-                    product: product
-                });
+    Product.findById(req.params.productId)
+        .then(product => {
+            if (!product) {
+                return res.status(404).json({ message: 'Product not found' });
             }
-                    //if the course is successfully archived, return true and send a message 'Course archived successfully'.
-            return res.status(200).send({ 
-                success: true, 
-                message: 'Product archived successfully'
-            });
-        } else {
-                    //if the course is not found, return 'Course not found'
-            return res.status(404).send({ message: 'Product not found' });
-        }
-    })
-    .catch(error => errorHandler(error, req, res));
+            if (!product.isActive) {
+                return res.status(200).json({ message: 'Product already archived', product: product });
+            }
+            return Product.findByIdAndUpdate(req.params.productId, updateActiveField, { new: true })
+                .then(updatedProduct => {
+                    res.status(200).json({ message: 'Product archived successfully', product: updatedProduct });
+                })
+                .catch(error => errorHandler(error, req, res));
+        })
+        .catch(error => errorHandler(error, req, res));
 };
 
-//[SECTION] Activate a course
-/*
-    Steps: 
-    1. Create an object and with the keys to be updated in the record
-    2. Retrieve and update a course using the mongoose "findByIdAndUpdate" method, passing the ID of the record to be updated as the first argument and an object containing the updates to the course
-    3. If the user is an admin, update a course else send a response of "false"
-    4. If a course is updated send a response of "true" else send "false"
-    5. Use the "then" method to send a response back to the client appliction based on the result of the "findByIdAndUpdate" method
-*/
 module.exports.activateProduct = (req, res) => {
-
     let updateActiveField = {
         isActive: true
-    }
+    };
 
-    Product.findByIdAndUpdate(req.params.courseId, updateActiveField)
-    .then(product => {
-        if (product) {
-            if (product.isActive) {
-                    // if the course isActive is already true, send a message 'Course already activated', and return the course.
-                return res.status(200).send({ 
-                    message: 'Product already activated', 
-                    product: product
-                });
+    Product.findById(req.params.productId)
+        .then(product => {
+            if (!product) {
+                return res.status(404).json({ message: 'Product not found' });
             }
-                //if the course is successfully activated, return true and send a message 'Course activated successfully'.
-            return res.status(200).send({
-                success: true,
-                message: 'Product activated successfully'
-            });
-        } else {
-                // if the course is not found, return 'Course not found'
-            return res.status(404).send({ message: 'Product not found' });
-        }
-    })
-    .catch(error => errorHandler(error, req, res));
+
+            if (product.isActive) {
+                return res.status(200).json({ message: 'Product already activated', product: product });
+            }
+            return Product.findByIdAndUpdate(req.params.productId, updateActiveField, { new: true })
+                .then(updatedProduct => {
+                    res.status(200).json({ message: 'Product activated successfully', product: updatedProduct });
+                })
+                .catch(error => errorHandler(error, req, res));
+        })
+        .catch(error => errorHandler(error, req, res));
 };
 
 // Controller action to search for courses by course name
