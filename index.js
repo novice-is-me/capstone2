@@ -10,7 +10,7 @@ const cors = require("cors");
 
 // [SECTION] Routes
 const userRoutes = require("./routes/user.js");
-const courseRoutes = require("./routes/product");
+const productRoutes = require("./routes/product.js");
 
 // [SECTION] Environment Setup
 // assign a prot number for the server to listen to
@@ -28,7 +28,6 @@ app.use(express.urlencoded({extended: true}));
 const corsOptions = {
 	origin: ["http://localhost:8000"],
 	credentials: true,
-
 	optionsSuccessStatus: 200
 }
 
@@ -39,6 +38,7 @@ mongoose.connection.once('open', () => console.log("Now connected to MongoDB Atl
 
 // [SECTION] Backend Routes
 app.use("/users", userRoutes);
+app.use("/products", productRoutes);
 
 // [SECTION] Server Gateway Response
 if(require.main === module) {
