@@ -79,27 +79,33 @@ module.exports.checkEmailExists = (req, res) => {
 	3. Generate/return a JSON web token if the user is successfully logged in and return false if not
 */
 module.exports.loginUser = (req, res) => {
-	return User.findOne({ email: req.body.email })
-	.then(result => {
-		if(result == null){
-			return res.send(false);
-		} else {
-			// Creates the variable "isPasswordCorrect" to return the result of comparing the login form password and the database password
-			// The "compareSync" method is used to compare a non-encrypted password from the login form to the encrypted password retrieved from the database and returns "true" or "false" value depending on the result
-			const isPasswordCorrect = bcrypt.compareSync(req.body.password, result.password);
-			// console.log(isPasswordCorrect);
+    // Validate email format
+    if (!isValidEmail(req.body.email)) {
+        return res.status(400).send({ error: "Invalid email" });
+    }
 
-			if(isPasswordCorrect){
-				// Generate an access token
-				// Uses the "createAccessToken" function defined in the "auth.js" file
-				// returning an object back to the client application is common practice to ensure information is properly labeled and real world examples noremally return more complex information represented by objects
-				return res.send({ access: auth.createAccessToken(result) })
-			} else {
-				return res.send(false);
-			}
-		}
-	})
-	.catch(err => errorHandler(error, req, res))
+    return User.findOne({ email: req.body.email })
+        .then(result => {
+            if (!result) {
+                return res.status(404).send({ error: "No Email Found" });
+            }
+
+            const isPasswordCorrect = bcrypt.compareSync(req.body.password, result.password);
+
+            if (isPasswordCorrect) {
+                return res.send({ access: auth.createAccessToken(result) });
+            } else {
+                return res.status(401).send({ error: "Email and password do not match" });
+            }
+        })
+        .catch(err => errorHandler(err, req, res));
+};
+
+// Function to validate email format
+function isValidEmail(email) {
+    // Use a simple regex for email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
 }
 
 //[Section] Activity: Retrieve user details
@@ -119,7 +125,7 @@ module.exports.getProfile = (req, res) => {
 
 		if(!user){
                 // if the user has invalid token, send a message 'invalid signature'.
-			return res.status(403).send({ message: 'invalid signature' })
+			return res.status(404).send({ error: 'User not found' })
 		}else {
                 // if the user is found, return the user.
 			user.password = "";
