@@ -136,3 +136,25 @@ module.exports.activateProduct = (req, res) => {
         })
         .catch(error => errorHandler(error, req, res));
 };
+
+module.exports.searchByName = (req, res) =>{
+    Product.find({name: { $regex: req.body.name, $options: 'i'}})
+    .then((result) =>{
+        if(result && result.length > 0){
+            return res.status(200).send(result)
+        }else{
+            return res.status(404).send({message: "No product found"})
+        }
+    })
+}
+
+module.exports.searchByPrice = (req, res) =>{
+    Product.find({price: {$gte: req.body.minPrice, $lte:req.body.maxPrice}})
+    .then((result) =>{
+        if(result && result.length > 0){
+            return res.status(200).send(result)
+        }else{
+            return res.status(404).send({message: "No product on that range"})
+        }
+    })
+}
