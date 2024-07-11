@@ -104,11 +104,11 @@ module.exports.archiveProduct = (req, res) => {
             }
             if (!product.isActive) {
                 return res.status(200).json({ message: 'Product already archived', archiveProduct: product });
-            }
+            } 
             return Product.findByIdAndUpdate(req.params.productId, updateActiveField, { new: true })
                 .then(updatedProduct => {
                     res.status(200).json({ message: 'Product archived successfully', archiveProduct: updatedProduct });
-                })
+                }) 
                 .catch(error => errorHandler(error, req, res));
         })
         .catch(error => errorHandler(error, req, res));
@@ -126,11 +126,11 @@ module.exports.activateProduct = (req, res) => {
             }
 
             if (product.isActive) {
-                return res.status(200).json({ message: 'Product already activated', product: product });
+                return res.status(200).json({ message: 'Product already activated', activateProduct: product });
             }
             return Product.findByIdAndUpdate(req.params.productId, updateActiveField, { new: true })
                 .then(updatedProduct => {
-                    res.status(200).json({ message: 'Product activated successfully', product: updatedProduct });
+                    res.status(200).json({ message: 'Product activated successfully', activateProduct: updatedProduct });
                 })
                 .catch(error => errorHandler(error, req, res));
         })
