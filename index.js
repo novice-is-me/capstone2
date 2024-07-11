@@ -11,6 +11,7 @@ const cors = require("cors");
 // [SECTION] Routes
 const userRoutes = require("./routes/user.js");
 const productRoutes = require("./routes/product.js");
+const cartRoutes = require("./routes/cart.js");
 
 // [SECTION] Environment Setup
 // assign a prot number for the server to listen to
@@ -39,6 +40,7 @@ mongoose.connection.once('open', () => console.log("Now connected to MongoDB Atl
 // [SECTION] Backend Routes
 app.use("/users", userRoutes);
 app.use("/products", productRoutes);
+app.use("/cart", cartRoutes); 
 
 // [SECTION] Server Gateway Response
 if(require.main === module) {
