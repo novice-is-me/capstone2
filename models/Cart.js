@@ -11,9 +11,9 @@ const cartSchema = new mongoose.Schema({
                 type: String,
                 required: [true, "Product ID is required"]
             },
-            quantityId:{
+            quantity:{
                 type: Number,
-                required: [true, "Quantity ID is required"]
+                required: [true, "Quantity is required"]
             },
             subtotal:{
                 type: Number,
