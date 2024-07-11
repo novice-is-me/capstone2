@@ -103,11 +103,11 @@ module.exports.archiveProduct = (req, res) => {
                 return res.status(404).json({ message: 'Product not found' });
             }
             if (!product.isActive) {
-                return res.status(200).json({ message: 'Product already archived', product: product });
+                return res.status(200).json({ message: 'Product already archived', archiveProduct: product });
             }
             return Product.findByIdAndUpdate(req.params.productId, updateActiveField, { new: true })
                 .then(updatedProduct => {
-                    res.status(200).json({ message: 'Product archived successfully', product: updatedProduct });
+                    res.status(200).json({ message: 'Product archived successfully', archiveProduct: updatedProduct });
                 })
                 .catch(error => errorHandler(error, req, res));
         })
