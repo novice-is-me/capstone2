@@ -145,7 +145,7 @@ module.exports.searchByName = (req, res) =>{
         }else{
             return res.status(404).send({message: "No product found"})
         }
-    })
+    }).catch(error => errorHandler(error, req, res));
 }
 
 module.exports.searchByPrice = (req, res) =>{
@@ -156,5 +156,5 @@ module.exports.searchByPrice = (req, res) =>{
         }else{
             return res.status(404).send({message: "No product on that range"})
         }
-    })
+    }).catch(error => errorHandler(error, req, res));
 }
