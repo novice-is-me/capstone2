@@ -164,4 +164,64 @@ module.exports.updateCartQuantity = async (req, res) => {
     }
 };
 
+module.exports.removeFromCart = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const productId = req.params.productId;
 
+        // Find the user's cart
+        const cart = await Cart.findOne({ userId: userId });
+        if (!cart) {
+            return res.status(404).json({ message: "No cart found for the user" });
+        }
+
+        // Find the index of the cart item to be removed
+        const itemIndex = cart.cartItems.findIndex(item => item.productId === productId);
+        if (itemIndex === -1) {
+            return res.status(404).json({ message: "Item not found in cart" });
+        }
+
+        // Remove the item from the cart
+        cart.cartItems.splice(itemIndex, 1);
+
+        // Update the total price of the cart
+        cart.totalPrice = cart.cartItems.reduce((total, item) => total + item.subtotal, 0);
+
+        // Save the updated cart
+        await cart.save();
+
+        // Respond with the updated cart
+        return res.status(200).json({ message: "Item removed from the cart successfully", updatedCart: cart });
+    } catch (error) {
+        return errorHandler(error, req, res);
+    }
+};
+
+module.exports.clearCart = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Find the user's cart
+        const cart = await Cart.findOne({ userId: userId });
+        if (!cart) {
+            return res.status(404).json({ message: "No cart found for the user" });
+        }
+
+        // Check if the cart has at least one item
+        if (cart.cartItems.length === 0) {
+            return res.status(404).json({ message: "Cart is already empty" });
+        }
+
+        // Remove all items from the cart
+        cart.cartItems = [];
+        cart.totalPrice = 0;
+
+        // Save the updated cart
+        await cart.save();
+
+        // Respond with the updated cart
+        return res.status(200).json({ message: "Cart cleared successfully", cart: cart });
+    } catch (error) {
+        return errorHandler(error, req, res);
+    }
+};
