@@ -39,14 +39,14 @@ mongoose.connect(process.env.MONGODB_STRING);
 mongoose.connection.once('open', () => console.log("Now connected to MongoDB Atlas"));
 
 // [SECTION] Backend Routes
-app.use("/users", userRoutes);
-app.use("/products", productRoutes);
-app.use('/cart', cartRouter);
-app.use('/order', orderRouter);
+app.use("/b5/users", userRoutes);
+app.use("/b5/products", productRoutes);
+app.use('/b5/cart', cartRouter);
+app.use('/b5/order', orderRouter);
 
 // [SECTION] Server Gateway Response
 if(require.main === module) {
-	app.listen(process.env.PORT || 4000, () => console.log(`API is now available in port ${process.env.PORT || 4000}`));
+	app.listen(process.env.PORT || 4005, () => console.log(`API is now available in port ${process.env.PORT || 4005}`));
 }
 
 module.exports = { app, mongoose };
