@@ -16,7 +16,7 @@ const orderRouter = require('./routes/order.js');
 
 // [SECTION] Environment Setup
 // assign a prot number for the server to listen to
-// const port = 4000;
+// const port = 4005;
 require("dotenv").config();
 
 // [SECTION] Server setup
@@ -28,10 +28,12 @@ app.use(express.urlencoded({extended: true}));
 
 
 const corsOptions = {
-	origin: ["http://localhost:8000"],
+	origin: ["http://localhost:5173"],
 	credentials: true,
 	optionsSuccessStatus: 200
 }
+
+app.use(cors(corsOptions));  
 
 
 // [SECTION] MongoDB Connection
@@ -47,6 +49,6 @@ app.use('/b5/order', orderRouter);
 // [SECTION] Server Gateway Response
 if(require.main === module) {
 	app.listen(process.env.PORT || 4005, () => console.log(`API is now available in port ${process.env.PORT || 4005}`));
-}
+} 
 
 module.exports = { app, mongoose };

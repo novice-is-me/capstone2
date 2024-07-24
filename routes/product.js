@@ -10,6 +10,7 @@ const router = express.Router();
 router.post("/", verify, verifyAdmin, productController.addProduct); 
 router.get("/all", verify, verifyAdmin, productController.getAllProduct);
 router.get("/active", productController.getAllActive);
+router.get("/", productController.getAllProduct);
 
 router.get("/:productId", productController.getProduct);
 router.patch("/:productId/update", verify, verifyAdmin, productController.updateProduct);

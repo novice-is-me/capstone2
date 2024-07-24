@@ -183,3 +183,13 @@ module.exports.updateUserAsAdmin = (req, res) => {
 		res.status(500).json({ message: 'Internal server error' });
 	}	
 };
+
+module.exports.getAllProfile = (req, res) => {
+	User.find({})
+	.then(users => { 
+		if (!users) {
+			return res.status(404).json({ message: "No users found" });
+		}
+		return res.status(200).json({ users });
+	})
+}
