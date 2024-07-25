@@ -148,13 +148,7 @@ module.exports.updatePassword = async (req, res) => {
 
 module.exports.updateUserAsAdmin = (req, res) => {
 	try{
-		const { userId } = req.body;
-		
-		if (!userId) {
-			return res.status(400).json({ message: "User ID is required" });
-		}
-
-		if (!mongoose.Types.ObjectId.isValid(userId)) {
+		if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(500).json({
                 error: "Failed in Find",
                 details: {
@@ -170,7 +164,7 @@ module.exports.updateUserAsAdmin = (req, res) => {
             });
         }
 
-		User.findByIdAndUpdate(userId, { isAdmin: true }, { new: true })
+		User.findByIdAndUpdate(req.params.id, { isAdmin: true }, { new: true })
 		.then(updatedUser => {
 			if (!updatedUser) {
 				return res.status(404).json({ message: "User not found" });
