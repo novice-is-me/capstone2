@@ -129,26 +129,36 @@ module.exports.loginUser = (req, res) => {
 }
 
 
-module.exports.updatePassword = async (req, res) => {
-	try {
-		const { newPassword } = req.body;
-		const { id } = req.user; 
-		
-		const hashedPassword = await bcrypt.hash(newPassword, 10);
-		
-		await User.findByIdAndUpdate(id, { password: hashedPassword });
-		
-		res.status(200).json({ message: 'Password reset successfully' });
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Internal server error' });
-	}
+module.exports.resetPassword = async (req, res) => {
+
+    try {
+
+        const { newPassword } = req.body;
+        const { id } = req.user;
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await User.findByIdAndUpdate(id, { password: hashedPassword }, {new: true});
+        res.status(200).json({ message: 'Password reset successfully' });
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+        
+    }
+
 };
 
 
 module.exports.updateUserAsAdmin = (req, res) => {
 	try{
-		if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+		const { userId } = req.body;
+		
+		if (!userId) {
+			return res.status(400).json({ message: "User ID is required" });
+		}
+
+		if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(500).json({
                 error: "Failed in Find",
                 details: {
@@ -164,7 +174,7 @@ module.exports.updateUserAsAdmin = (req, res) => {
             });
         }
 
-		User.findByIdAndUpdate(req.params.id, { isAdmin: true }, { new: true })
+		User.findByIdAndUpdate(userId, { isAdmin: true }, { new: true })
 		.then(updatedUser => {
 			if (!updatedUser) {
 				return res.status(404).json({ message: "User not found" });
@@ -186,4 +196,34 @@ module.exports.getAllProfile = (req, res) => {
 		}
 		return res.status(200).json({ users });
 	})
+}
+
+module.exports.updateProfile = async (req, res) => {
+    try {
+
+        // Add a console.log() to check if you can pass data properly from postman
+        // console.log(req.body);
+
+        // Add a console.log() to show req.user, our decoded token, does have id property
+        // console.log(req.user);
+            
+        // Get the user ID from the authenticated token
+        const userId = req.user.id;
+
+        // Retrieve the updated profile information from the request body
+        // Update the req.body to use mobileNo instead of mobileNumber to match our schema
+        const { firstName, lastName, mobileNo } = req.body;
+
+        // Update the user's profile in the database
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { firstName, lastName, mobileNo },
+            { new: true }
+        );
+
+        res.send(updatedUser);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: 'Failed to update profile' });
+    }
 }
