@@ -28,7 +28,7 @@ app.use(express.urlencoded({extended: true}));
 
 
 const corsOptions = {
-	origin: ['https://capstone3-eight-sigma.vercel.app/'],
+	origin: ['https://capstone3-eight-sigma.vercel.app'],
 	credentials: true,
 	optionsSuccessStatus: 200
 }
